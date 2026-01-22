@@ -63,14 +63,20 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       SizedBox(height: 3),
                       Text(
-                        "Obstacle Detection App",
+                        "Second Sight App",
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Edit profile feature not added yet ✅"),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.edit, color: Colors.green),
                 ),
               ],
@@ -136,7 +142,7 @@ class _SettingsPageState extends State<SettingsPage> {
           // ✅ Confidence Threshold Slider
           buildSliderTile(
             title: "Confidence Threshold",
-            subtitle: "Lower value gives more detections (may be wrong)",
+            subtitle: "Lower value detects more objects (may be wrong)",
             icon: Icons.analytics,
             value: confidenceThreshold,
             min: 0.30,
@@ -171,6 +177,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 10),
 
+          // ✅ About App
           buildSimpleTile(
             title: "About App",
             subtitle: "Project details and version",
@@ -181,7 +188,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 builder: (context) => AlertDialog(
                   title: const Text("About"),
                   content: const Text(
-                    "Obstacle Detection System for Visually Impaired\n\nVersion: 1.0\n\nThis app detects obstacles using camera and provides audio alerts.",
+                    "Second Sight - Obstacle Detection App\n\n"
+                    "Version: 1.0\n\n"
+                    "This app detects obstacles using camera and AI, "
+                    "and gives alerts using voice + vibration.",
                   ),
                   actions: [
                     TextButton(
@@ -194,6 +204,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
 
+          // ✅ Reset Settings
           buildSimpleTile(
             title: "Reset Settings",
             subtitle: "Restore default options",
@@ -207,6 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 alertSensitivity = 5;
                 confidenceThreshold = 0.60;
               });
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Settings Reset Done ✅")),
               );

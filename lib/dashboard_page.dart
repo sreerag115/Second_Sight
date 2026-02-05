@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'camera_page.dart';
+import 'settings_page.dart';
 import 'detection_page_mlkit.dart';
 
 class HomePage extends StatelessWidget {
@@ -98,9 +99,7 @@ class DashboardPage extends StatelessWidget {
             const SizedBox(height: 15),
 
             Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
               child: const ListTile(
                 leading: Icon(Icons.settings, color: Colors.green, size: 35),
                 title: Text("Settings"),

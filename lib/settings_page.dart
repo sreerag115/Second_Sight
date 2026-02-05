@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'login_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -17,6 +18,12 @@ class _SettingsPageState extends State<SettingsPage> {
   double alertSensitivity = 5; // 1 to 10
   double confidenceThreshold = 0.60; // 0.30 to 0.95
 
+  void _vibrateOnChange() {
+    if (vibrationAlerts) {
+      HapticFeedback.selectionClick();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // ✅ Profile Card
+          // Profile Card
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -63,14 +70,20 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       SizedBox(height: 3),
                       Text(
-                        "Obstacle Detection App",
+                        "Second Sight App",
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Edit profile feature not added yet ✅"),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.edit, color: Colors.green),
                 ),
               ],
@@ -85,7 +98,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 10),
 
-          // ✅ Voice Alerts Toggle
           buildSwitchTile(
             title: "Voice Alerts",
             subtitle: "Speak warning messages aloud",
@@ -94,7 +106,6 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.volume_up,
           ),
 
-          // ✅ Vibration Toggle
           buildSwitchTile(
             title: "Vibration Alerts",
             subtitle: "Vibrate when obstacle is detected",
@@ -111,7 +122,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 10),
 
-          // ✅ Low Light Enhancement
           buildSwitchTile(
             title: "Low Light Enhancement",
             subtitle: "Improve detection in dark areas",
@@ -120,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.brightness_4,
           ),
 
-          // ✅ Alert Sensitivity Slider
+          // Alert Sensitivity Slider (with vibration)
           buildSliderTile(
             title: "Alert Sensitivity",
             subtitle: "Higher sensitivity gives more warnings",
@@ -130,20 +140,26 @@ class _SettingsPageState extends State<SettingsPage> {
             max: 10,
             divisions: 9,
             label: alertSensitivity.toStringAsFixed(0),
-            onChanged: (val) => setState(() => alertSensitivity = val),
+            onChanged: (val) {
+              setState(() => alertSensitivity = val);
+              _vibrateOnChange();
+            },
           ),
 
-          // ✅ Confidence Threshold Slider
+          // Confidence Threshold Slider (with vibration)
           buildSliderTile(
             title: "Confidence Threshold",
-            subtitle: "Lower value gives more detections (may be wrong)",
+            subtitle: "Lower value detects more objects (may be wrong)",
             icon: Icons.analytics,
             value: confidenceThreshold,
             min: 0.30,
             max: 0.95,
             divisions: 13,
             label: confidenceThreshold.toStringAsFixed(2),
-            onChanged: (val) => setState(() => confidenceThreshold = val),
+            onChanged: (val) {
+              setState(() => confidenceThreshold = val);
+              _vibrateOnChange();
+            },
           ),
 
           const SizedBox(height: 18),
@@ -154,7 +170,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 10),
 
-          // ✅ Privacy Mode
           buildSwitchTile(
             title: "Privacy Mode",
             subtitle: "Camera works only when app is open",
@@ -181,7 +196,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 builder: (context) => AlertDialog(
                   title: const Text("About"),
                   content: const Text(
-                    "Obstacle Detection System for Visually Impaired\n\nVersion: 1.0\n\nThis app detects obstacles using camera and provides audio alerts.",
+                    "Second Sight - Obstacle Detection App\n\n"
+                    "Version: 1.0\n\n"
+                    "This app detects obstacles using camera and AI, "
+                    "and gives alerts using voice + vibration.",
                   ),
                   actions: [
                     TextButton(
@@ -207,6 +225,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 alertSensitivity = 5;
                 confidenceThreshold = 0.60;
               });
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Settings Reset Done ✅")),
               );
@@ -215,7 +234,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
           const SizedBox(height: 25),
 
-          // ✅ Logout Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -242,7 +260,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // ✅ Switch Tile Widget
+  // Switch Tile
   Widget buildSwitchTile({
     required String title,
     required String subtitle,
@@ -267,7 +285,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // ✅ Slider Tile Widget
+  // Slider Tile
   Widget buildSliderTile({
     required String title,
     required String subtitle,
@@ -318,7 +336,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // ✅ Simple Tap Tile Widget
+  // Simple Tile
   Widget buildSimpleTile({
     required String title,
     required String subtitle,

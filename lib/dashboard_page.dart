@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
-import 'detection_page.dart';
 import 'camera_page.dart';
+import 'detection_page_mlkit.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -26,7 +26,6 @@ class HomePage extends StatelessWidget {
   }
 }
 
-
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
@@ -43,7 +42,7 @@ class DashboardPage extends StatelessWidget {
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
+                MaterialPageRoute(builder: (_) => const LoginPage()),
               );
             },
           )
@@ -54,34 +53,41 @@ class DashboardPage extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 30),
-
             const Text(
               "Welcome to Second Sight",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 40),
 
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
               child: ListTile(
-                leading: const Icon(Icons.camera_alt, color: Colors.green, size: 35),
+                leading: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.green,
+                  size: 35,
+                ),
                 title: const Text("Start Obstacle Detection"),
                 subtitle: const Text("Camera + Voice Alerts"),
-               onTap: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const DetectionPage()),
-  );
-},
-
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DetectionPageMLKit(),
+                    ),
+                  );
+                },
               ),
             ),
 
             const SizedBox(height: 15),
 
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
               child: const ListTile(
                 leading: Icon(Icons.history, color: Colors.green, size: 35),
                 title: Text("History"),
@@ -92,7 +98,9 @@ class DashboardPage extends StatelessWidget {
             const SizedBox(height: 15),
 
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
               child: const ListTile(
                 leading: Icon(Icons.settings, color: Colors.green, size: 35),
                 title: Text("Settings"),

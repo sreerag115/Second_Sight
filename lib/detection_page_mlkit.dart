@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class DetectionPageMLKit extends StatefulWidget {
   const DetectionPageMLKit({super.key});
@@ -24,9 +25,15 @@ class _DetectionPageMLKitState extends State<DetectionPageMLKit> {
   late final ObjectDetector _objectDetector;
   late final PoseDetector _poseDetector;
 
+  // ✅ VOICE SYSTEM (OPTIMIZED)
+  late FlutterTts _tts;
+  bool _isSpeaking = false;
+  String _lastAnnouncement = "";
+  DateTime _lastSpeechTime = DateTime.now();
+  static const int _speechCooldownMs = 2500;
+
   DateTime _lastRun = DateTime.now();
 
-  // temporal pose validation
   int _poseFrameCount = 0;
   static const int _poseConfirmFrames = 5;
 
@@ -48,7 +55,47 @@ class _DetectionPageMLKitState extends State<DetectionPageMLKit> {
       ),
     );
 
+    // ✅ TTS setup
+    _tts = FlutterTts();
+    _tts.setLanguage("en-US");
+    _tts.setSpeechRate(0.45);
+    _tts.setVolume(1.0);
+    _tts.setPitch(1.0);
+
+    _tts.setCompletionHandler(() {
+      _isSpeaking = false;
+    });
+
     _initCamera();
+  }
+
+  // ✅ SMART SPEECH (NO SPAM + PRIORITY)
+  Future<void> _speakSmart() async {
+    final now = DateTime.now();
+
+    if (_isSpeaking) return;
+    if (now.difference(_lastSpeechTime).inMilliseconds < _speechCooldownMs) {
+      return;
+    }
+
+    String message;
+
+    if (personDetected) {
+      message = "Person $personDistance";
+    } else if (detectedObjects > 0) {
+      message = "Obstacle ahead";
+    } else {
+      message = "Path clear";
+    }
+
+    // speak only if state changed
+    if (message == _lastAnnouncement) return;
+
+    _lastAnnouncement = message;
+    _lastSpeechTime = now;
+    _isSpeaking = true;
+
+    await _tts.speak(message);
   }
 
   Future<void> _initCamera() async {
@@ -111,7 +158,6 @@ class _DetectionPageMLKitState extends State<DetectionPageMLKit> {
         final footY = (leftAnkle.y + rightAnkle.y) / 2;
         final pixelHeight = (footY - head.y).abs();
 
-        // ✅ FIXED: correct reference dimension
         final heightRatio = pixelHeight / image.width;
 
         if (heightRatio > 0.55) {
@@ -139,6 +185,9 @@ class _DetectionPageMLKitState extends State<DetectionPageMLKit> {
       detectedObjects = objects.length;
     });
 
+    // ✅ OPTIMIZED VOICE CALL
+    _speakSmart();
+
     _isDetecting = false;
   }
 
@@ -147,6 +196,7 @@ class _DetectionPageMLKitState extends State<DetectionPageMLKit> {
     _controller?.dispose();
     _objectDetector.close();
     _poseDetector.close();
+    _tts.stop();
     super.dispose();
   }
 

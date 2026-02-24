@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'camera_page.dart';
-import 'settings_page.dart';
 import 'detection_page_mlkit.dart';
+import 'settings_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -99,13 +99,24 @@ class DashboardPage extends StatelessWidget {
             const SizedBox(height: 15),
 
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              child: const ListTile(
-                leading: Icon(Icons.settings, color: Colors.green, size: 35),
-                title: Text("Settings"),
-                subtitle: Text("Voice, vibration, sensitivity"),
-              ),
-            ),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(15),
+  ),
+  child: ListTile(
+    leading: const Icon(Icons.settings, color: Colors.green, size: 35),
+    title: const Text("Settings"),
+    subtitle: const Text("Voice, vibration, sensitivity"),
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const SettingsPage(),
+        ),
+      );
+    },
+  ),
+),
+
           ],
         ),
       ),

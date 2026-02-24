@@ -1,97 +1,101 @@
 import 'package:flutter/material.dart';
-import 'register_page.dart';
 import 'dashboard_page.dart';
+import 'register_page.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  void loginUser() {
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter email and password")),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardPage()),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green.shade50,
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF4F46E5),
+              Color(0xFF14B8A6),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         child: Center(
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const Icon(Icons.visibility, size: 80, color: Colors.green),
-                const SizedBox(height: 10),
-                const Text(
-                  "Second Sight",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 30),
-
-                TextField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  )
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.visibility,
+                    size: 60,
+                    color: Color(0xFF4F46E5),
                   ),
-                ),
-                const SizedBox(height: 15),
-
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: "Password",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: loginUser,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
-                      backgroundColor: Colors.green,
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Welcome Back",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: const Text("Login", style: TextStyle(fontSize: 18)),
                   ),
-                ),
-
-                const SizedBox(height: 15),
-
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RegisterPage()),
-                    );
-                  },
-                  child: const Text("Don't have an account? Register"),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  TextField(
+                    decoration: const InputDecoration(
+                      hintText: "Email",
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      hintText: "Password",
+                      prefixIcon: Icon(Icons.lock),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const DashboardPage(),
+                          ),
+                        );
+                      },
+                      child: const Text("Login"),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RegisterPage(),
+                        ),
+                      );
+                    },
+                    child: const Text("Create an account"),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

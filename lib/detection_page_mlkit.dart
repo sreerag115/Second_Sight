@@ -200,99 +200,133 @@ class _DetectionPageMLKitState extends State<DetectionPageMLKit> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_controller == null || !_controller!.value.isInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final previewSize = _controller!.value.previewSize!;
-    final screenSize = MediaQuery.of(context).size;
-
-    final scaleX = screenSize.width / previewSize.height;
-    final scaleY = screenSize.height / previewSize.width;
-
-    return Scaffold(
-      appBar: AppBar(title: const Text("Obstacle Detection")),
-      body: Stack(
-        children: [
-          CameraPreview(_controller!),
-
-          ...detected.map((obj) {
-            final rect = obj.boundingBox;
-
-            String label = "Obstacle";
-            if (obj.labels.isNotEmpty &&
-                obj.labels.first.confidence > 0.7) {
-              label = obj.labels.first.text;
-            }
-
-            return Positioned(
-              left: rect.left * scaleX,
-              top: rect.top * scaleY,
-              width: rect.width * scaleX,
-              height: rect.height * scaleY,
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.orange,
-                        width: 3,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Container(
-                      color: Colors.black87,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      child: Text(
-                        label,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-
-          Positioned(
-            bottom: 20,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: personDetected || detectedObjects > 0
-                    ? Colors.red
-                    : Colors.green,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                personDetected
-                    ? "🚶 Person $personDistance"
-                    : detectedObjects > 0
-                        ? "🚧 Obstacles: $detectedObjects"
-                        : "✅ Path clear",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+ @override
+Widget build(BuildContext context) {
+  if (_controller == null || !_controller!.value.isInitialized) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
+
+  final previewSize = _controller!.value.previewSize!;
+  final screenSize = MediaQuery.of(context).size;
+
+  final scaleX = screenSize.width / previewSize.height;
+  final scaleY = screenSize.height / previewSize.width;
+
+  return Scaffold(
+    backgroundColor: Colors.black,
+    appBar: AppBar(
+      title: const Text("AI Obstacle Detection"),
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
+      elevation: 0,
+    ),
+    body: Stack(
+      children: [
+        CameraPreview(_controller!),
+
+        /// Bounding Boxes
+        ...detected.map((obj) {
+          final rect = obj.boundingBox;
+
+          String label = "Obstacle";
+          if (obj.labels.isNotEmpty &&
+              obj.labels.first.confidence > 0.7) {
+            label = obj.labels.first.text;
+          }
+
+          return Positioned(
+            left: rect.left * scaleX,
+            top: rect.top * scaleY,
+            width: rect.width * scaleX,
+            height: rect.height * scaleY,
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: const Color(0xFF4F46E5),
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                Positioned(
+                  top: -2,
+                  left: -2,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4F46E5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+
+        /// Modern Status Panel
+        Positioned(
+          bottom: 30,
+          left: 20,
+          right: 20,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.75),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: personDetected || detectedObjects > 0
+                    ? Colors.redAccent
+                    : Colors.greenAccent,
+                width: 2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  personDetected || detectedObjects > 0
+                      ? Icons.warning_amber_rounded
+                      : Icons.check_circle,
+                  color: personDetected || detectedObjects > 0
+                      ? Colors.redAccent
+                      : Colors.greenAccent,
+                  size: 28,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    personDetected
+                        ? "Person $personDistance"
+                        : detectedObjects > 0
+                            ? "$detectedObjects obstacle(s) detected"
+                            : "Path clear",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }

@@ -15,8 +15,8 @@ class _SettingsPageState extends State<SettingsPage> {
   bool lowLightEnhancement = false;
   bool privacyMode = true;
 
-  double alertSensitivity = 5; // 1 to 10
-  double confidenceThreshold = 0.60; // 0.30 to 0.95
+  double alertSensitivity = 5;
+  double confidenceThreshold = 0.60;
 
   void _vibrateOnChange() {
     if (vibrationAlerts) {
@@ -27,111 +27,90 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green.shade50,
       appBar: AppBar(
         title: const Text("Settings"),
-        backgroundColor: Colors.green,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         children: [
-          // Profile Card
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 10,
-                  color: Colors.black.withOpacity(0.05),
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
+
+          /// PROFILE CARD
+          _buildCard(
             child: Row(
               children: [
-                const CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.person, color: Colors.white, size: 30),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4F46E5).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    color: Color(0xFF4F46E5),
+                    size: 28,
+                  ),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
+                const SizedBox(width: 16),
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        "User",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
-                        "Second Sight App",
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                    children: [
+                      Text("User",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(height: 4),
+                      Text("Second Sight App",
+                          style: TextStyle(color: Color(0xFF64748B))),
                     ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Edit profile feature not added yet ✅"),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.edit, color: Colors.green),
-                ),
               ],
             ),
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 28),
 
-          const Text(
-            "Alert Preferences",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
+          const _SectionTitle("Alert Preferences"),
+          const SizedBox(height: 16),
 
-          buildSwitchTile(
+          _buildSwitchTile(
             title: "Voice Alerts",
             subtitle: "Speak warning messages aloud",
             value: voiceAlerts,
-            onChanged: (val) => setState(() => voiceAlerts = val),
             icon: Icons.volume_up,
+            onChanged: (val) {
+              setState(() => voiceAlerts = val);
+              _vibrateOnChange();
+            },
           ),
 
-          buildSwitchTile(
+          _buildSwitchTile(
             title: "Vibration Alerts",
             subtitle: "Vibrate when obstacle is detected",
             value: vibrationAlerts,
-            onChanged: (val) => setState(() => vibrationAlerts = val),
             icon: Icons.vibration,
+            onChanged: (val) {
+              setState(() => vibrationAlerts = val);
+            },
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 28),
 
-          const Text(
-            "Detection Settings",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
+          const _SectionTitle("Detection Settings"),
+          const SizedBox(height: 16),
 
-          buildSwitchTile(
+          _buildSwitchTile(
             title: "Low Light Enhancement",
             subtitle: "Improve detection in dark areas",
             value: lowLightEnhancement,
-            onChanged: (val) => setState(() => lowLightEnhancement = val),
             icon: Icons.brightness_4,
+            onChanged: (val) {
+              setState(() => lowLightEnhancement = val);
+              _vibrateOnChange();
+            },
           ),
 
-          // Alert Sensitivity Slider (with vibration)
-          buildSliderTile(
+          _buildSliderTile(
             title: "Alert Sensitivity",
             subtitle: "Higher sensitivity gives more warnings",
             icon: Icons.tune,
@@ -146,10 +125,9 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
 
-          // Confidence Threshold Slider (with vibration)
-          buildSliderTile(
+          _buildSliderTile(
             title: "Confidence Threshold",
-            subtitle: "Lower value detects more objects (may be wrong)",
+            subtitle: "Lower value detects more objects",
             icon: Icons.analytics,
             value: confidenceThreshold,
             min: 0.30,
@@ -162,97 +140,74 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 28),
 
-          const Text(
-            "Privacy & Security",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
+          const _SectionTitle("Privacy & Security"),
+          const SizedBox(height: 16),
 
-          buildSwitchTile(
+          _buildSwitchTile(
             title: "Privacy Mode",
             subtitle: "Camera works only when app is open",
             value: privacyMode,
-            onChanged: (val) => setState(() => privacyMode = val),
             icon: Icons.lock,
+            onChanged: (val) {
+              setState(() => privacyMode = val);
+              _vibrateOnChange();
+            },
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 28),
 
-          const Text(
-            "Other",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
+          const _SectionTitle("Other"),
+          const SizedBox(height: 16),
 
-          buildSimpleTile(
+          _buildSimpleTile(
             title: "About App",
             subtitle: "Project details and version",
             icon: Icons.info_outline,
             onTap: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
+                builder: (_) => AlertDialog(
                   title: const Text("About"),
                   content: const Text(
                     "Second Sight - Obstacle Detection App\n\n"
                     "Version: 1.0\n\n"
-                    "This app detects obstacles using camera and AI, "
-                    "and gives alerts using voice + vibration.",
+                    "Detects obstacles using AI and provides "
+                    "voice + vibration alerts.",
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("OK"),
-                    ),
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("OK"))
                   ],
                 ),
               );
             },
           ),
 
-          buildSimpleTile(
-            title: "Reset Settings",
-            subtitle: "Restore default options",
-            icon: Icons.refresh,
-            onTap: () {
-              setState(() {
-                voiceAlerts = true;
-                vibrationAlerts = true;
-                lowLightEnhancement = false;
-                privacyMode = true;
-                alertSensitivity = 5;
-                confidenceThreshold = 0.60;
-              });
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Settings Reset Done ✅")),
-              );
-            },
-          ),
-
-          const SizedBox(height: 25),
+          const SizedBox(height: 20),
 
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.all(14),
+                backgroundColor: Colors.redAccent,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  MaterialPageRoute(
+                      builder: (_) => const LoginPage()),
                   (route) => false,
                 );
               },
               icon: const Icon(Icons.logout),
-              label: const Text(
-                "Logout",
-                style: TextStyle(fontSize: 18),
-              ),
+              label: const Text("Logout"),
             ),
           ),
         ],
@@ -260,33 +215,49 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // Switch Tile
-  Widget buildSwitchTile({
+  Widget _buildCard({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildSwitchTile({
     required String title,
     required String subtitle,
     required bool value,
-    required Function(bool) onChanged,
     required IconData icon,
+    required Function(bool) onChanged,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SwitchListTile(
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: Colors.green,
-        secondary: Icon(icon, color: Colors.green),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: _buildCard(
+        child: SwitchListTile(
+          value: value,
+          onChanged: onChanged,
+          activeColor: const Color(0xFF4F46E5),
+          secondary: Icon(icon, color: const Color(0xFF4F46E5)),
+          title: Text(title,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600)),
+          subtitle: Text(subtitle),
+        ),
       ),
     );
   }
 
-  // Slider Tile
-  Widget buildSliderTile({
+  Widget _buildSliderTile({
     required String title,
     required String subtitle,
     required IconData icon,
@@ -297,64 +268,78 @@ class _SettingsPageState extends State<SettingsPage> {
     required String label,
     required Function(double) onChanged,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: Colors.green),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: _buildCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: const Color(0xFF4F46E5)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600)),
                 ),
-              ),
-              Text(label, style: const TextStyle(color: Colors.green)),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Text(subtitle, style: const TextStyle(color: Colors.grey)),
-          Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            label: label,
-            activeColor: Colors.green,
-            onChanged: onChanged,
-          ),
-        ],
+                Text(label,
+                    style: const TextStyle(
+                        color: Color(0xFF4F46E5),
+                        fontWeight: FontWeight.w600)),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(subtitle,
+                style:
+                    const TextStyle(color: Color(0xFF64748B))),
+            Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              label: label,
+              activeColor: const Color(0xFF4F46E5),
+              onChanged: onChanged,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Simple Tile
-  Widget buildSimpleTile({
+  Widget _buildSimpleTile({
     required String title,
     required String subtitle,
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return _buildCard(
       child: ListTile(
-        leading: Icon(icon, color: Colors.green),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        leading: Icon(icon, color: const Color(0xFF4F46E5)),
+        title: Text(title,
+            style:
+                const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        trailing:
+            const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  const _SectionTitle(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
       ),
     );
   }

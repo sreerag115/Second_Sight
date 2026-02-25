@@ -13,11 +13,13 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
 
-  StreamSubscription? _accelerometerSub;
+  StreamSubscription<AccelerometerEvent>? _accelerometerSub;
   DateTime _lastShakeTime = DateTime.now();
 
-  static const double shakeThreshold = 15.0;
-  static const int shakeCooldownMs = 1500;
+  static const double shakeThreshold = 23.0; // firmer shake
+  static const int shakeCooldownMs = 2500;
+
+  bool _isNavigating = false;
 
   @override
   void initState() {
@@ -26,8 +28,13 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _startListening() {
+    _accelerometerSub?.cancel();
+
     _accelerometerSub =
         accelerometerEvents.listen((AccelerometerEvent event) {
+
+      if (!mounted) return;
+      if (_isNavigating) return;
 
       double acceleration =
           event.x.abs() + event.y.abs() + event.z.abs();
@@ -40,16 +47,31 @@ class _DashboardPageState extends State<DashboardPage> {
             shakeCooldownMs) {
 
           _lastShakeTime = now;
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const DetectionPageMLKit(),
-            ),
-          );
+          _openCamera();
         }
       }
     });
+  }
+
+  void _openCamera() async {
+    if (_isNavigating) return;
+
+    _isNavigating = true;
+
+    // STOP listening immediately
+    await _accelerometerSub?.cancel();
+    _accelerometerSub = null;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const DetectionPageMLKit(),
+      ),
+    );
+
+    // Restart listening when returning
+    _isNavigating = false;
+    _startListening();
   }
 
   @override
@@ -68,9 +90,9 @@ class _DashboardPageState extends State<DashboardPage> {
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: const [
 
-            const Text(
+            Text(
               "Welcome 👋",
               style: TextStyle(
                 fontSize: 26,
@@ -78,52 +100,64 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
-            const Text(
-              "Shake your phone to instantly open camera",
+            Text(
+              "Shake firmly to open camera",
               style: TextStyle(
                 fontSize: 15,
                 color: Color(0xFF64748B),
               ),
             ),
 
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
 
-            /// Start Detection Card
-            _DashboardCard(
-              icon: Icons.camera_alt,
-              title: "Start Detection",
-              subtitle: "Scan and detect objects using AI",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const DetectionPageMLKit(),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            /// Settings Card
-            _DashboardCard(
-              icon: Icons.settings,
-              title: "Settings",
-              subtitle: "App preferences and configuration",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const SettingsPage(),
-                  ),
-                );
-              },
-            ),
+            _DashboardContent(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _DashboardContent extends StatelessWidget {
+  const _DashboardContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+
+        _DashboardCard(
+          icon: Icons.camera_alt,
+          title: "Start Detection",
+          subtitle: "Scan and detect objects using AI",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const DetectionPageMLKit(),
+              ),
+            );
+          },
+        ),
+
+        SizedBox(height: 20),
+
+        _DashboardCard(
+          icon: Icons.settings,
+          title: "Settings",
+          subtitle: "App preferences and configuration",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const SettingsPage(),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -185,10 +219,10 @@ class _DashboardCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       color: Color(0xFF64748B),
                     ),
@@ -196,7 +230,7 @@ class _DashboardCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16),
+            Icon(Icons.arrow_forward_ios, size: 16),
           ],
         ),
       ),

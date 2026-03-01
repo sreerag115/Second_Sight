@@ -16,7 +16,7 @@ class _DashboardPageState extends State<DashboardPage> {
   StreamSubscription<AccelerometerEvent>? _accelerometerSub;
   DateTime _lastShakeTime = DateTime.now();
 
-  static const double shakeThreshold = 23.0; // firmer shake
+  static const double shakeThreshold = 23.0;
   static const int shakeCooldownMs = 2500;
 
   bool _isNavigating = false;
@@ -33,14 +33,12 @@ class _DashboardPageState extends State<DashboardPage> {
     _accelerometerSub =
         accelerometerEvents.listen((AccelerometerEvent event) {
 
-      if (!mounted) return;
-      if (_isNavigating) return;
+      if (!mounted || _isNavigating) return;
 
       double acceleration =
           event.x.abs() + event.y.abs() + event.z.abs();
 
       if (acceleration > shakeThreshold) {
-
         final now = DateTime.now();
 
         if (now.difference(_lastShakeTime).inMilliseconds >
@@ -58,7 +56,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
     _isNavigating = true;
 
-    // STOP listening immediately
     await _accelerometerSub?.cancel();
     _accelerometerSub = null;
 
@@ -69,7 +66,6 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
     );
 
-    // Restart listening when returning
     _isNavigating = false;
     _startListening();
   }
@@ -82,37 +78,145 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Second Sight"),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
 
-            Text(
-              "Welcome 👋",
+            // Header
+            const Text(
+              "Dashboard",
               style: TextStyle(
-                fontSize: 26,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            SizedBox(height: 8),
+            const SizedBox(height: 6),
 
             Text(
-              "Shake firmly to open camera",
-              style: TextStyle(
-                fontSize: 15,
+              "${now.day}/${now.month}/${now.year}",
+              style: const TextStyle(
                 color: Color(0xFF64748B),
               ),
             ),
 
-            SizedBox(height: 32),
+            const SizedBox(height: 24),
 
-            _DashboardContent(),
+            // Stats Grid
+            Row(
+              children: const [
+                Expanded(
+                  child: _StatCard(
+                    title: "AI Engine",
+                    value: "Active",
+                    icon: Icons.memory,
+                    color: Color(0xFF4F46E5),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: _StatCard(
+                    title: "System",
+                    value: "Online",
+                    icon: Icons.cloud_done,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: const [
+                Expanded(
+                  child: _StatCard(
+                    title: "Obstacles",
+                    value: "34",
+                    icon: Icons.warning_amber,
+                    color: Colors.redAccent,
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: _StatCard(
+                    title: "Alerts Today",
+                    value: "12",
+                    icon: Icons.notifications_active,
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+
+            const Text(
+              "Quick Actions",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            _ActionCard(
+              icon: Icons.camera_alt,
+              title: "Start Detection",
+              subtitle: "Scan and detect objects using AI",
+              onTap: _openCamera,
+            ),
+
+            const SizedBox(height: 16),
+
+            _ActionCard(
+              icon: Icons.settings,
+              title: "Settings",
+              subtitle: "Manage app preferences",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SettingsPage(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 30),
+
+            const Text(
+              "AI Tip",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4F46E5).withOpacity(0.08),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: const Text(
+                "Shake your phone firmly while on this screen to instantly launch the AI detection camera.",
+                style: TextStyle(
+                  color: Color(0xFF4F46E5),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -120,55 +224,71 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-class _DashboardContent extends StatelessWidget {
-  const _DashboardContent();
+// ------------------ STAT CARD ------------------
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-
-        _DashboardCard(
-          icon: Icons.camera_alt,
-          title: "Start Detection",
-          subtitle: "Scan and detect objects using AI",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const DetectionPageMLKit(),
-              ),
-            );
-          },
-        ),
-
-        SizedBox(height: 20),
-
-        _DashboardCard(
-          icon: Icons.settings,
-          title: "Settings",
-          subtitle: "App preferences and configuration",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const SettingsPage(),
-              ),
-            );
-          },
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _DashboardCard extends StatelessWidget {
+// ------------------ ACTION CARD ------------------
+
+class _ActionCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
-  const _DashboardCard({
+  const _ActionCard({
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -201,36 +321,27 @@ class _DashboardCard extends StatelessWidget {
                 color: const Color(0xFF4F46E5).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(
-                icon,
-                color: const Color(0xFF4F46E5),
-                size: 28,
-              ),
+              child: Icon(icon,
+                  color: const Color(0xFF4F46E5), size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(subtitle,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF64748B))),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 16),
+            const Icon(Icons.arrow_forward_ios, size: 16),
           ],
         ),
       ),

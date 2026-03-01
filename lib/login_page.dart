@@ -2,15 +2,26 @@ import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 import 'register_page.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
         width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -24,65 +35,153 @@ class LoginPage extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             child: Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    blurRadius: 25,
+                    offset: const Offset(0, 12),
                   )
                 ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.visibility,
-                    size: 60,
-                    color: Color(0xFF4F46E5),
+
+                  /// App Icon
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4F46E5).withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.visibility,
+                      size: 40,
+                      color: Color(0xFF4F46E5),
+                    ),
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 18),
+
                   const Text(
                     "Welcome Back",
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 24),
+
+                  const SizedBox(height: 6),
+
+                  const Text(
+                    "Login to continue",
+                    style: TextStyle(
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  /// Email Field
                   TextField(
-                    decoration: const InputDecoration(
+                    controller: _emailController,
+                    decoration: InputDecoration(
                       hintText: "Email",
-                      prefixIcon: Icon(Icons.email),
+                      prefixIcon: const Icon(Icons.email),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFCBD5E1),
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF4F46E5),
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 18),
+
+                  /// Password Field
                   TextField(
-                    obscureText: true,
-                    decoration: const InputDecoration(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
                       hintText: "Password",
-                      prefixIcon: Icon(Icons.lock),
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFCBD5E1),
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF4F46E5),
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+
+                  const SizedBox(height: 28),
+
+                  /// Login Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (_) => const DashboardPage(),
                           ),
                         );
                       },
-                      child: const Text("Login"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4F46E5),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 18),
+
+                  /// Register Link
                   TextButton(
                     onPressed: () {
                       Navigator.push(
@@ -92,7 +191,13 @@ class LoginPage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text("Create an account"),
+                    child: const Text(
+                      "Create an account",
+                      style: TextStyle(
+                        color: Color(0xFF4F46E5),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),

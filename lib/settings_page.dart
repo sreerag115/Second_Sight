@@ -33,7 +33,6 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-
           /// PROFILE CARD
           _buildCard(
             child: Row(
@@ -201,8 +200,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const LoginPage()),
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
                   (route) => false,
                 );
               },
@@ -246,11 +244,10 @@ class _SettingsPageState extends State<SettingsPage> {
         child: SwitchListTile(
           value: value,
           onChanged: onChanged,
-          activeColor: const Color(0xFF4F46E5),
+          activeThumbColor: const Color(0xFF4F46E5),
           secondary: Icon(icon, color: const Color(0xFF4F46E5)),
-          title: Text(title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w600)),
+          title:
+              Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
           subtitle: Text(subtitle),
         ),
       ),
@@ -280,19 +277,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600)),
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
                 ),
                 Text(label,
                     style: const TextStyle(
-                        color: Color(0xFF4F46E5),
-                        fontWeight: FontWeight.w600)),
+                        color: Color(0xFF4F46E5), fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 6),
-            Text(subtitle,
-                style:
-                    const TextStyle(color: Color(0xFF64748B))),
+            Text(subtitle, style: const TextStyle(color: Color(0xFF64748B))),
             Slider(
               value: value,
               min: min,
@@ -317,12 +310,9 @@ class _SettingsPageState extends State<SettingsPage> {
     return _buildCard(
       child: ListTile(
         leading: Icon(icon, color: const Color(0xFF4F46E5)),
-        title: Text(title,
-            style:
-                const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
-        trailing:
-            const Icon(Icons.arrow_forward_ios, size: 16),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
       ),
     );

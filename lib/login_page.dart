@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dashboard_page.dart';
 import 'register_page.dart';
 import 'database_helper.dart';
+import 'emergency_contacts_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -248,6 +249,39 @@ class _LoginPageState extends State<LoginPage> {
                   ),
 
                   const SizedBox(height: 18),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EmergencyContactsPage(),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        backgroundColor: Colors.white.withOpacity(0.95),
+                      ),
+                      icon: const Icon(Icons.emergency, color: Colors.redAccent),
+                      label: const Text(
+                        "EMERGENCY",
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
 
                   TextButton(
                     onPressed: () {

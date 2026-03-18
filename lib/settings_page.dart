@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'login_page.dart';
+import 'personal_data_page.dart';
+import 'app_settings.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:io';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -10,13 +14,23 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool voiceAlerts = true;
-  bool vibrationAlerts = true;
-  bool lowLightEnhancement = false;
-  bool privacyMode = true;
+  final _store = const AppSettingsStore();
+  final _profileStorage = const FlutterSecureStorage();
 
-  double alertSensitivity = 5;
-  double confidenceThreshold = 0.60;
+  static const _kProfileName = "profile_name";
+  static const _kProfilePhotoPath = "profile_photo_path";
+
+  bool _loading = true;
+  String _profileName = "User";
+  String? _profilePhotoPath;
+
+  bool voiceAlerts = AppSettings.defaults.voiceAlerts;
+  bool vibrationAlerts = AppSettings.defaults.vibrationAlerts;
+  bool lowLightEnhancement = AppSettings.defaults.lowLightEnhancement;
+  bool privacyMode = AppSettings.defaults.privacyMode;
+
+  double alertSensitivity = AppSettings.defaults.alertSensitivity;
+  double confidenceThreshold = AppSettings.defaults.confidenceThreshold;
 
   void _vibrateOnChange() {
     if (vibrationAlerts) {
@@ -25,45 +39,73 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final settings = await _store.load();
+    final profileName = await _profileStorage.read(key: _kProfileName);
+    final profilePhotoPath =
+        await _profileStorage.read(key: _kProfilePhotoPath);
+    if (!mounted) return;
+    setState(() {
+      voiceAlerts = settings.voiceAlerts;
+      vibrationAlerts = settings.vibrationAlerts;
+      lowLightEnhancement = settings.lowLightEnhancement;
+      privacyMode = settings.privacyMode;
+      alertSensitivity = settings.alertSensitivity;
+      confidenceThreshold = settings.confidenceThreshold;
+      _profileName = (profileName == null || profileName.trim().isEmpty)
+          ? "User"
+          : profileName.trim();
+      _profilePhotoPath = profilePhotoPath;
+      _loading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          /// PROFILE CARD
-          _buildCard(
-            child: Row(
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.all(24),
               children: [
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4F46E5).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.person,
-                    color: Color(0xFF4F46E5),
-                    size: 28,
-                  ),
+          /// PROFILE CARD
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PersonalDataPage(),
                 ),
-                const SizedBox(width: 16),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("User",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(height: 4),
-                      Text("Second Sight App",
-                          style: TextStyle(color: Color(0xFF64748B))),
-                    ],
+              ).then((_) => _loadSettings());
+            },
+            child: _buildCard(
+              child: Row(
+                children: [
+                  _buildProfileAvatar(),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_profileName,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 4),
+                        const Text("Second Sight App",
+                            style: TextStyle(color: Color(0xFF64748B))),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
@@ -79,6 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.volume_up,
             onChanged: (val) {
               setState(() => voiceAlerts = val);
+              _store.update(voiceAlerts: val);
               _vibrateOnChange();
             },
           ),
@@ -90,6 +133,7 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.vibration,
             onChanged: (val) {
               setState(() => vibrationAlerts = val);
+              _store.update(vibrationAlerts: val);
             },
           ),
 
@@ -105,6 +149,7 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.brightness_4,
             onChanged: (val) {
               setState(() => lowLightEnhancement = val);
+              _store.update(lowLightEnhancement: val);
               _vibrateOnChange();
             },
           ),
@@ -120,6 +165,7 @@ class _SettingsPageState extends State<SettingsPage> {
             label: alertSensitivity.toStringAsFixed(0),
             onChanged: (val) {
               setState(() => alertSensitivity = val);
+              _store.update(alertSensitivity: val);
               _vibrateOnChange();
             },
           ),
@@ -135,6 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
             label: confidenceThreshold.toStringAsFixed(2),
             onChanged: (val) {
               setState(() => confidenceThreshold = val);
+              _store.update(confidenceThreshold: val);
               _vibrateOnChange();
             },
           ),
@@ -151,6 +198,7 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.lock,
             onChanged: (val) {
               setState(() => privacyMode = val);
+              _store.update(privacyMode: val);
               _vibrateOnChange();
             },
           ),
@@ -228,6 +276,38 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
       child: child,
+    );
+  }
+
+  Widget _buildProfileAvatar() {
+    final path = _profilePhotoPath;
+    final hasPhoto = path != null && File(path).existsSync();
+
+    if (hasPhoto) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.file(
+          File(path),
+          width: 56,
+          height: 56,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    return Container(
+      width: 56,
+      height: 56,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF4F46E5).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Icon(
+        Icons.person,
+        color: Color(0xFF4F46E5),
+        size: 28,
+      ),
     );
   }
 

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'detection_page_mlkit.dart';
 import 'settings_page.dart';
+import 'database_helper.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:io';
+import 'personal_data_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -21,10 +25,70 @@ class _DashboardPageState extends State<DashboardPage> {
 
   bool _isNavigating = false;
 
+  final _db = DatabaseHelper.instance;
+  bool _statsLoading = true;
+  int _alertsToday = 0;
+  int _obstaclesToday = 0;
+  DateTime? _lastAlertAt;
+
+  final _profileStorage = const FlutterSecureStorage();
+  static const _kProfilePhotoPath = "profile_photo_path";
+  String? _profilePhotoPath;
+
   @override
   void initState() {
     super.initState();
     _startListening();
+    _loadStats();
+    _loadProfile();
+  }
+
+  Future<void> _loadStats() async {
+    final stats = await _db.getDashboardStats();
+    if (!mounted) return;
+    setState(() {
+      _alertsToday = (stats['alertsToday'] as int?) ?? 0;
+      _obstaclesToday = (stats['obstaclesToday'] as int?) ?? 0;
+      _lastAlertAt = stats['lastAlertAt'] as DateTime?;
+      _statsLoading = false;
+    });
+  }
+
+  Future<void> _loadProfile() async {
+    final photoPath = await _profileStorage.read(key: _kProfilePhotoPath);
+    if (!mounted) return;
+    setState(() {
+      _profilePhotoPath = photoPath;
+    });
+  }
+
+  Widget _buildProfileAction() {
+    final path = _profilePhotoPath;
+    final hasPhoto = path != null && File(path).existsSync();
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PersonalDataPage(),
+            ),
+          );
+          _loadProfile();
+        },
+        child: CircleAvatar(
+          radius: 18,
+          backgroundColor: const Color(0xFF4F46E5).withOpacity(0.12),
+          backgroundImage: hasPhoto ? FileImage(File(path)) : null,
+          child: hasPhoto
+              ? null
+              : const Icon(Icons.person, color: Color(0xFF4F46E5), size: 18),
+        ),
+      ),
+    );
   }
 
   void _startListening() {
@@ -68,6 +132,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
     _isNavigating = false;
     _startListening();
+    _loadStats();
   }
 
   @override
@@ -83,6 +148,9 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Second Sight"),
+        actions: [
+          _buildProfileAction(),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -110,13 +178,13 @@ class _DashboardPageState extends State<DashboardPage> {
 
             const SizedBox(height: 24),
 
-            // Stats Grid
+            // Stats Grid (real data)
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: _StatCard(
-                    title: "AI Engine",
-                    value: "Active",
+                    title: "Obstacles Today",
+                    value: _statsLoading ? "..." : _obstaclesToday.toString(),
                     icon: Icons.memory,
                     color: Color(0xFF4F46E5),
                   ),
@@ -124,8 +192,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 SizedBox(width: 16),
                 Expanded(
                   child: _StatCard(
-                    title: "System",
-                    value: "Online",
+                    title: "Alerts Today",
+                    value: _statsLoading ? "..." : _alertsToday.toString(),
                     icon: Icons.cloud_done,
                     color: Colors.green,
                   ),
@@ -136,11 +204,13 @@ class _DashboardPageState extends State<DashboardPage> {
             const SizedBox(height: 16),
 
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: _StatCard(
-                    title: "Obstacles",
-                    value: "34",
+                    title: "Last Alert",
+                    value: _statsLoading
+                        ? "..."
+                        : _formatLastAlert(_lastAlertAt),
                     icon: Icons.warning_amber,
                     color: Colors.redAccent,
                   ),
@@ -148,8 +218,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 SizedBox(width: 16),
                 Expanded(
                   child: _StatCard(
-                    title: "Alerts Today",
-                    value: "12",
+                    title: "DB Status",
+                    value: _statsLoading ? "Loading" : "Connected",
                     icon: Icons.notifications_active,
                     color: Colors.orange,
                   ),
@@ -221,6 +291,16 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
       ),
     );
+  }
+
+  String _formatLastAlert(DateTime? dt) {
+    if (dt == null) return "None";
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 1) return "Just now";
+    if (diff.inMinutes < 60) return "${diff.inMinutes}m ago";
+    if (diff.inHours < 24) return "${diff.inHours}h ago";
+    return "${dt.day}/${dt.month}/${dt.year}";
   }
 }
 
